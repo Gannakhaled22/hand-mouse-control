@@ -27,11 +27,4 @@ Control your computer mouse using hand gestures and webcam.
 
 ---
 
-## Requirements
-
-- Python 3.8 or higher
-- Webcam
-- Windows / macOS / Linux
-
----
 
