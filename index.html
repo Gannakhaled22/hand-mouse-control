@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Mouse Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d2ff, #7a5cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        .video-container {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #2a2a4a;
+        }
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        .btn-start {
+            background: linear-gradient(135deg, #00d2ff, #7a5cff);
+            color: #fff;
+        }
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        }
+        .btn-stop {
+            background: #ff4757;
+            color: #fff;
+        }
+        .btn-stop:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+        }
+        .btn-status {
+            background: #2a2a4a;
+            color: #fff;
+            cursor: default;
+        }
+        .gestures {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 25px;
+            background: #12122a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #2a2a4a;
+        }
+        .gesture-item {
+            text-align: center;
+            padding: 10px;
+            background: #1a1a3a;
+            border-radius: 10px;
+        }
+        .gesture-item .icon {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .gesture-item .desc {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        .gesture-item .action {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #00d2ff;
+        }
+        .status-bar {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #12122a;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        .status-bar span {
+            color: #00d2ff;
+            font-weight: 600;
+        }
+        .camera-btn {
+            background: #2a2a4a;
+            color: #fff;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .camera-btn:hover {
+            background: #3a3a6a;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.6rem; }
+            .btn { padding: 10px 20px; font-size: 0.9rem; min-width: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hand Mouse Control</h1>
+        <p class="subtitle">Control your mouse using hand gestures</p>
+
+        <div class="video-container">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-start" onclick="startCamera()">Start Camera</button>
+            <button class="btn btn-stop" onclick="stopCamera()">Stop Camera</button>
+            <button class="camera-btn" onclick="switchCamera()">Switch Camera</button>
+            <button class="btn btn-status" id="status-btn">Status: Stopped</button>
+        </div>
+
+        <div class="gestures">
+            <div class="gesture-item">
+                <span class="icon">☝️</span>
+                <div class="action">Move Mouse</div>
+                <div class="desc">Move index finger</div>
+            </div>
+            <div class="gesture-item">
+                <span class="icon">🤏</span>
+                <div class="action">Click</div>
+                <div class="desc">Index + Middle close</div>
+            </div>
+            <div class="gesture-item">
+                <span class="icon">✌️</span>
+                <div class="action">Double Click</div>
+                <div class="desc">Peace sign</div>
+            </div>
+            <div class="gesture-item">
+                <span class="icon">✊</span>
+                <div class="action">Lock Mouse</div>
+                <div class="desc">Fist gesture</div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>Status:</span> <span id="status-text">Camera Off</span>
+        </div>
+    </div>
+
+    <script>
+        let stream = null;
+        let facingMode = 'environment'; // 'environment' = back camera, 'user' = front camera
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let intervalId = null;
+
+        async function startCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: facingMode,
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                await video.play();
+                
+                document.getElementById('status-text').textContent = 'Camera Running';
+                document.getElementById('status-btn').textContent = 'Status: Running';
+                document.getElementById('status-btn').style.background = '#2a2a4a';
+                
+                // Start sending frames to server
+                if (intervalId) clearInterval(intervalId);
+                intervalId = setInterval(sendFrame, 100);
+                
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Cannot access camera. Please allow camera permission.');
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+            }
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            document.getElementById('status-text').textContent = 'Camera Off';
+            document.getElementById('status-btn').textContent = 'Status: Stopped';
+            document.getElementById('status-btn').style.background = '#ff4757';
+        }
+
+        function switchCamera() {
+            facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+            if (stream) {
+                stopCamera();
+                setTimeout(startCamera, 500);
+            }
+        }
+
+        async function sendFrame() {
+            if (!video.videoWidth || !video.videoHeight) return;
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            try {
+                const response = await fetch('/process_frame', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+                const result = await response.json();
+                if (result.gesture) {
+                    document.getElementById('status-text').textContent = 'Gesture: ' + result.gesture;
+                }
+            } catch (err) {
+                console.error('Error sending frame:', err);
+            }
+        }
+
+        // Start camera automatically on mobile
+        if (window.innerWidth < 768) {
+            setTimeout(startCamera, 1000);
+        }
+    </script>
+</body>
+</html>
